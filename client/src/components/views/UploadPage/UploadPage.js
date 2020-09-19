@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Form, Input, Button } from 'antd'
 import FileUpload from '../../utils/FileUpload'
+import axios from 'axios';
 
 const { TextArea } = Input;
 
@@ -38,6 +39,36 @@ function UploadPage(props) {
     const updateImages = (newImages) => {
         setImages(newImages)
     }
+    const submitHandler = (event) => {
+        event.preventDefault();
+
+        if (!Title || !Description || !Price ||
+            !Continent || !Images) {
+            return alert('fill all the fields first!')
+        }
+
+        //서버에 채운 값들을 request로 보낸다
+        const body = {
+            //로그인된 사람의 ID
+            writer: props.user.userData._id,
+            title: Title,
+            description: Description,
+            price: Price, 
+            images: Images, 
+            contients: Continent
+        }
+
+        axios.post("/api/product", body)
+            .then(response => {
+                if(response.data.success){
+                    alert("Success to upload")
+                    props.history.push("/")
+                } else {
+                    alert("Fail to upload")
+                }
+            })
+
+    }
 
     return (
         <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
@@ -46,7 +77,7 @@ function UploadPage(props) {
                     </div>
 
 
-                    <Form>
+                    <Form onSubmit={submitHandler}>
 
                         {/* DropZone */}
                         <FileUpload refreshFunction={updateImages}/>
@@ -82,7 +113,7 @@ function UploadPage(props) {
                         <br />
                         <br />
 
-                        <Button>
+                        <Button onClick={submitHandler} >
                             Submit
                         </Button>
 
